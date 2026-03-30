@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:16
+    container_name: vocca-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vocca
+      POSTGRES_PASSWORD: vocca
+      POSTGRES_DB: vocca
+    ports:
+      - "5432:5432"
+    volumes:
+      - vocca-postgres-data:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vocca -d vocca"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build:
+      context: .
+      target: dev
+    container_name: vocca-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://vocca:vocca@db:5432/vocca
+      TEMP_OWNER_ID: local-dev-owner
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - vocca-node-modules:/app/node_modules
+
+volumes:
+  vocca-postgres-data:
+  vocca-node-modules:

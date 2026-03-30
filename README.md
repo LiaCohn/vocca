@@ -1,17 +1,57 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+## Docker (Recommended Local Setup)
 
-First, run the development server:
+1. Start app + Postgres (schema auto-applies on first boot):
+
+```bash
+docker compose up --build -d
+```
+
+2. Open the app:
+
+- [http://localhost:3000](http://localhost:3000)
+
+3. Stop everything:
+
+```bash
+docker compose down
+```
+
+To also remove Postgres data volume:
+
+```bash
+docker compose down -v
+```
+
+Note: Postgres init scripts in `docker-entrypoint-initdb.d/` only run when the database volume is empty.
+If you change `db/schema.sql` and want it to re-apply, run `docker compose down -v` and start again.
+
+## Local Non-Docker Setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Set environment variables in `.env.local`:
+
+```bash
+DATABASE_URL=postgres://USER:PASSWORD@HOST:5432/DB_NAME
+TEMP_OWNER_ID=local-dev-owner
+```
+
+3. Create the database schema:
+
+```bash
+psql "$DATABASE_URL" -f db/schema.sql
+```
+
+4. Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
