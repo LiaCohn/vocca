@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-import { getOwnerId, recordQuizResult } from "@/data/word-store";
+import { getAuthSession } from "@/auth";
+import { recordQuizResult } from "@/data/word-store";
 
 const quizResultSchema = z.object({
   isCorrect: z.boolean(),
@@ -9,12 +10,18 @@ const quizResultSchema = z.object({
 type RouteParams = { id: string };
 
 export async function POST(request: Request, { params }: { params: Promise<RouteParams> }) {
+  const session = await getAuthSession();
+  const ownerId = session?.user?.id;
+  if (!ownerId) {
+    return Response.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
   const { id } = await params;
 
   try {
     const raw = await request.json();
     const payload = quizResultSchema.parse(raw);
-    const word = await recordQuizResult(getOwnerId(), id, payload.isCorrect);
+    const word = await recordQuizResult(ownerId, id, payload.isCorrect);
     if (!word) {
       return Response.json({ error: "Word not found." }, { status: 404 });
     }
