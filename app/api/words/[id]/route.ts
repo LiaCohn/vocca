@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-import { getOwnerId, getWordById, removeWord, updateWord } from "@/data/word-store";
+import { getAuthSession } from "@/auth";
+import { getWordById, removeWord, updateWord } from "@/data/word-store";
 
 const updateWordSchema = z.object({
   text: z.string().optional(),
@@ -13,8 +14,14 @@ const updateWordSchema = z.object({
 type RouteParams = { id: string };
 
 export async function GET(_request: Request, { params }: { params: Promise<RouteParams> }) {
+  const session = await getAuthSession();
+  const ownerId = session?.user?.id;
+  if (!ownerId) {
+    return Response.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
   const { id } = await params;
-  const word = await getWordById(getOwnerId(), id);
+  const word = await getWordById(ownerId, id);
   if (!word) {
     return Response.json({ error: "Word not found." }, { status: 404 });
   }
@@ -22,12 +29,18 @@ export async function GET(_request: Request, { params }: { params: Promise<Route
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<RouteParams> }) {
+  const session = await getAuthSession();
+  const ownerId = session?.user?.id;
+  if (!ownerId) {
+    return Response.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
   const { id } = await params;
 
   try {
     const raw = await request.json();
     const payload = updateWordSchema.parse(raw);
-    const word = await updateWord(getOwnerId(), id, payload);
+    const word = await updateWord(ownerId, id, payload);
     if (!word) {
       return Response.json({ error: "Word not found." }, { status: 404 });
     }
@@ -38,7 +51,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<Rout
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<RouteParams> }) {
+  const session = await getAuthSession();
+  const ownerId = session?.user?.id;
+  if (!ownerId) {
+    return Response.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
   const { id } = await params;
-  await removeWord(getOwnerId(), id);
+  await removeWord(ownerId, id);
   return new Response(null, { status: 204 });
 }

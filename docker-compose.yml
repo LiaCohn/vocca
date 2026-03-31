@@ -29,7 +29,6 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgres://vocca:vocca@db:5432/vocca
-      TEMP_OWNER_ID: local-dev-owner
       WATCHPACK_POLLING: "true"
     ports:
       - "3000:3000"

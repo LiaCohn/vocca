@@ -39,7 +39,15 @@ npm install
 
 ```bash
 DATABASE_URL=postgres://USER:PASSWORD@HOST:5432/DB_NAME
-TEMP_OWNER_ID=local-dev-owner
+AUTH_SECRET=replace-with-a-long-random-secret
+AUTH_GOOGLE_ID=replace-with-google-oauth-client-id
+AUTH_GOOGLE_SECRET=replace-with-google-oauth-client-secret
+```
+
+For Google OAuth, add this callback URL in your Google Cloud OAuth app:
+
+```bash
+http://localhost:3000/api/auth/callback/google
 ```
 
 3. Create the database schema:

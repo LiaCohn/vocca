@@ -35,8 +35,6 @@ export type UpdateWordInput = {
   isHard?: boolean;
 };
 
-const TEMP_OWNER_ID_FALLBACK = "local-dev-owner";
-
 function normalizeText(value: string | undefined): string | null {
   const trimmed = value?.trim();
   return trimmed && trimmed.length > 0 ? trimmed : null;
@@ -60,10 +58,6 @@ function mapWord(row: WordRow): Word {
       lastCorrect: row.last_correct ? new Date(row.last_correct).toISOString() : undefined,
     },
   };
-}
-
-export function getOwnerId(): string {
-  return process.env.TEMP_OWNER_ID?.trim() || TEMP_OWNER_ID_FALLBACK;
 }
 
 export async function listWords(ownerId: string): Promise<Word[]> {
