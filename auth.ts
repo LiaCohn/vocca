@@ -27,6 +27,9 @@ export const authOptions: NextAuthOptions = {
   jwt: {
     maxAge: TWO_WEEKS_IN_SECONDS,
   },
+  pages: {
+    signIn: "/signin",
+  },
   callbacks: {
     async session({ session, token }) {
       if (session.user && token.sub) {
