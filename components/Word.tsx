@@ -24,7 +24,11 @@ export const WordComponent = ({ word ,onDelete}: { word: Word, onDelete: (id: st
             <div className="flex items-start justify-between gap-2">
               <p className="min-w-0 flex-1 text-base font-semibold">{word.text}</p>
               <div className="flex shrink-0 items-center gap-2">
-                <p className="text-xs text-zinc-500">{word.tags[0] ?? "No Tags"}</p>
+                <p className="text-xs text-zinc-500 flex gap-1">{word.tags.map((t) => 
+                    <span key={t} className="bg-brand-softer border border-brand-subtle text-fg-brand-strong text-xs font-medium px-1.5 py-0.5 rounded">{t}</span>
+    ) ?? "No Tags"}
+    
+    </p>
                 <button
                   type="button"
                   aria-label={`Delete ${word.text}`}

@@ -18,6 +18,7 @@ export default function NewWordPage() {
             text: values.text,
             meaning: values.meaning,
             example: values.example,
+            tags: values.tags,
           });
           router.push("/");
         }}

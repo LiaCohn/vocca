@@ -30,6 +30,7 @@ export default function EditWordPage() {
           text: word.text,
           meaning: word.meaning ?? "",
           example: word.example ?? "",
+          tags: word.tags,
         }}
         submitLabel="Save changes"
         onSubmit={async (values) => {
@@ -37,6 +38,7 @@ export default function EditWordPage() {
             text: values.text,
             meaning: values.meaning,
             example: values.example,
+            tags: values.tags,
           });
           router.push("/");
         }}
