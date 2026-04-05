@@ -57,7 +57,7 @@ export default function QuizRunPage() {
 
       const withMeaning = modeWords.filter((word) => Boolean(word.meaning?.trim()));
       const initialQueue = buildQuestionQueue(withMeaning, count);
-
+      // console.log("initialQueue", initialQueue);
       setPool(allWords);
       setQueue(initialQueue);
       setTotalQuestions(initialQueue.length);
@@ -124,6 +124,8 @@ export default function QuizRunPage() {
   }
 
   if (queue.length === 0 || !question) {
+    console.log("queue ", queue);
+    console.log("question", question);
     if (results.length > 0) {
       return (
         <section className="space-y-4">
