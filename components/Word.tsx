@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import type { Word } from "@/domain/types";
 
 export const WordComponent = ({ word ,onDelete}: { word: Word, onDelete: (id: string) => void }) => {
@@ -29,6 +31,12 @@ export const WordComponent = ({ word ,onDelete}: { word: Word, onDelete: (id: st
     ) ?? "No Tags"}
     
     </p>
+                <Link
+                  href={`/words/${word.id}/edit`}
+                  className="inline-flex h-7 shrink-0 items-center rounded-md border border-zinc-300 px-2.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2"
+                >
+                  Edit
+                </Link>
                 <button
                   type="button"
                   aria-label={`Delete ${word.text}`}
