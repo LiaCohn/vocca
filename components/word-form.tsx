@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { z } from "zod";
 
 const TAG_DEBOUNCE_MS = 500;
 
@@ -16,6 +17,13 @@ type WordFormProps = {
   submitLabel: string;
   onSubmit: (values: WordFormValues) => Promise<void>;
 };
+
+const wordFormSchema = z.object({
+  text: z.string().trim().min(1, "Word is required."),
+  meaning: z.string().trim().min(1, "Meaning is required."),
+  example: z.string(),
+  tags: z.array(z.string()),
+});
 
 function TagBadge({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
@@ -68,6 +76,7 @@ export function WordForm({ initialValues, submitLabel, onSubmit }: WordFormProps
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const tagDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const canSubmit = values.text.trim().length > 0 && values.meaning.trim().length > 0;
 
   function clearTagDebounce() {
     if (tagDebounceRef.current) {
@@ -104,21 +113,22 @@ export function WordForm({ initialValues, submitLabel, onSubmit }: WordFormProps
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!values.text.trim()) {
-      setError("Word is required.");
-      return;
-    }
-
     clearTagDebounce();
     const draft = tagDraft.trim();
     const tagsForSubmit =
       draft && !tags.includes(draft) ? [...tags, draft] : tags;
 
+    const parsed = wordFormSchema.safeParse({ ...values, tags: tagsForSubmit });
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? "Please fix the form and try again.");
+      return;
+    }
+
     setError(null);
     setSubmitting(true);
 
     try {
-      await onSubmit({ ...values, tags: tagsForSubmit });
+      await onSubmit(parsed.data);
     } catch {
       setError("Could not save word. Please try again.");
     } finally {
@@ -184,7 +194,7 @@ export function WordForm({ initialValues, submitLabel, onSubmit }: WordFormProps
 
       <div>
         <label htmlFor="meaning" className="mb-1 block text-sm font-medium">
-          Meaning
+          Meaning *
         </label>
         <textarea
           id="meaning"
@@ -213,7 +223,7 @@ export function WordForm({ initialValues, submitLabel, onSubmit }: WordFormProps
 
       <button
         type="submit"
-        disabled={submitting}
+        disabled={submitting || !canSubmit}
         className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
       >
         {submitting ? "Saving..." : submitLabel}
