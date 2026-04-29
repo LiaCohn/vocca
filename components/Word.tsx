@@ -2,14 +2,17 @@ import Link from "next/link";
 
 import type { Word } from "@/domain/types";
 
-export const WordComponent = ({ word ,onDelete}: { word: Word, onDelete: (id: string) => void }) => {
+export const WordComponent = ({ word ,onDelete, nowMs}: { word: Word, onDelete: (id: string) => void, nowMs: number }) => {
     const handleDelete = (id: string) => {
         onDelete(id);
     }
 
     const formatAddedAt =(value: string): string => {
         const createdMs = new Date(value).getTime();
-        const diffMs = Date.now() - createdMs;
+        if (Number.isNaN(createdMs)) {
+          return "Unknown date";
+        }
+        const diffMs = nowMs - createdMs;
         const days = Math.floor(diffMs / (24 * 60 * 60 * 1000));
         if (days <= 0) {
           return "Today";
@@ -63,6 +66,15 @@ export const WordComponent = ({ word ,onDelete}: { word: Word, onDelete: (id: st
               </div>
             </div>
             <p className="text-sm text-zinc-700">{word.meaning ?? "No meaning yet"}</p>
+            {word.example?.trim() ? (
+              <details className="group mt-2 mb-2 rounded-md border border-zinc-200 bg-zinc-50 px-2 py-1 text-sm text-zinc-700">
+                <summary className="cursor-pointer text-xs font-medium text-zinc-600 select-none marker:text-zinc-500">
+                  <span className="group-open:hidden">Show example</span>
+                  <span className="hidden group-open:inline">Hide example</span>
+                </summary>
+                <p className="mt-2 italic">&ldquo;{word.example.trim()}&rdquo;</p>
+              </details>
+            ) : null}
             <p className="text-xs text-zinc-500">{formatAddedAt(word.createdAt)}</p>
         </li>
 

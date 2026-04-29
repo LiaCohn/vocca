@@ -14,6 +14,12 @@ CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0", "--port", "3000"]
 
 FROM base AS builder
 ENV NODE_ENV=production
+ARG AUTH_GOOGLE_ID
+ARG AUTH_GOOGLE_SECRET
+ARG AUTH_SECRET
+ENV AUTH_GOOGLE_ID=${AUTH_GOOGLE_ID}
+ENV AUTH_GOOGLE_SECRET=${AUTH_GOOGLE_SECRET}
+ENV AUTH_SECRET=${AUTH_SECRET}
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
