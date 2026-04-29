@@ -9,12 +9,20 @@ import { WordComponent } from "@/components/Word";
 export default function Home() {
   const [words, setWords] = useState<Word[]>([]);
   const [search, setSearch] = useState("");
-  // const [referenceNow] = useState(() => Date.now());
+  const [nowMs, setNowMs] = useState(() => Date.now());
 
   useEffect(() => {
     getWordRepository()
       .list()
       .then(setWords);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNowMs(Date.now());
+    }, 60 * 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const filteredWords = useMemo(() => {
@@ -51,7 +59,7 @@ export default function Home() {
           <p className="text-sm text-zinc-600">No words yet.</p>
         ) : (
           <ul className="space-y-2">
-            {filteredWords.map((word) => WordComponent({word, onDelete: handleDelete}))}
+            {filteredWords.map((word) => WordComponent({word, onDelete: handleDelete, nowMs}))}
           </ul>
         )}
       </section>

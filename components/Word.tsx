@@ -2,14 +2,17 @@ import Link from "next/link";
 
 import type { Word } from "@/domain/types";
 
-export const WordComponent = ({ word ,onDelete}: { word: Word, onDelete: (id: string) => void }) => {
+export const WordComponent = ({ word ,onDelete, nowMs}: { word: Word, onDelete: (id: string) => void, nowMs: number }) => {
     const handleDelete = (id: string) => {
         onDelete(id);
     }
 
     const formatAddedAt =(value: string): string => {
         const createdMs = new Date(value).getTime();
-        const diffMs = Date.now() - createdMs;
+        if (Number.isNaN(createdMs)) {
+          return "Unknown date";
+        }
+        const diffMs = nowMs - createdMs;
         const days = Math.floor(diffMs / (24 * 60 * 60 * 1000));
         if (days <= 0) {
           return "Today";
