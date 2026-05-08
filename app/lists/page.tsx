@@ -182,7 +182,7 @@ export default function ListsPage() {
 
       {loading ? (
         <p className="text-sm text-zinc-600">Loading lists...</p>
-      ) : lists.length === 0 ? (
+      ) : error ? null : lists.length === 0 ? (
         <p className="text-sm text-zinc-600">No lists yet.</p>
       ) : (
         <ul className="space-y-2">
