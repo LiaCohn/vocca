@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
+import { getListRepository, type ListWithWordCount } from "@/data/list-repository";
 import type { QuizMode } from "@/domain/types";
 
 const modeOptions: Array<{ value: QuizMode; label: string; description: string }> = [
@@ -16,6 +17,26 @@ export default function QuizPage() {
   const router = useRouter();
   const [mode, setMode] = useState<QuizMode>("recent7d");
   const [count, setCount] = useState(10);
+  const [lists, setLists] = useState<ListWithWordCount[]>([]);
+  const [selectedListId, setSelectedListId] = useState<string>("");
+
+  useEffect(() => {
+    getListRepository()
+      .list()
+      .then(setLists)
+      .catch(() => setLists([]));
+  }, []);
+
+  function beginQuiz() {
+    const params = new URLSearchParams({
+      mode,
+      count: String(count),
+    });
+    if (selectedListId) {
+      params.set("listId", selectedListId);
+    }
+    router.push(`/quiz/run?${params.toString()}`);
+  }
 
   return (
     <section className="space-y-4">
@@ -48,10 +69,24 @@ export default function QuizPage() {
           className="w-32 rounded-md border border-zinc-300 px-3 py-2"
         />
 
+        <label className="mb-1 mt-4 block text-sm font-medium">Word source</label>
+        <select
+          value={selectedListId}
+          onChange={(event) => setSelectedListId(event.target.value)}
+          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+        >
+          <option value="">All words</option>
+          {lists.map((list) => (
+            <option key={list.id} value={list.id}>
+              {list.name} ({list.wordCount})
+            </option>
+          ))}
+        </select>
+
         <button
           type="button"
           className="mt-4 rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white"
-          onClick={() => router.push(`/quiz/run?mode=${mode}&count=${count}`)}
+          onClick={beginQuiz}
         >
           Begin quiz
         </button>

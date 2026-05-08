@@ -1,4 +1,4 @@
-import type { List } from "@/domain/types";
+import type { List, Word } from "@/domain/types";
 
 export type ListWithWordCount = List & {
   wordCount: number;
@@ -33,6 +33,7 @@ export interface ListRepository {
   create(name: string): Promise<List>;
   rename(id: string, name: string): Promise<List | null>;
   remove(id: string): Promise<void>;
+  listWords(listId: string): Promise<Word[]>;
   listWordIdsForWord(wordId: string): Promise<string[]>;
   assignWord(listId: string, wordId: string): Promise<void>;
   unassignWord(listId: string, wordId: string): Promise<void>;
@@ -57,6 +58,14 @@ class ApiListRepository implements ListRepository {
 
   async remove(id: string): Promise<void> {
     await requestJson<void>(`/api/lists/${id}`, { method: "DELETE" });
+  }
+
+  async listWords(listId: string): Promise<Word[]> {
+    try {
+      return await requestJson<Word[]>(`/api/lists/${listId}/words`);
+    } catch {
+      return [];
+    }
   }
 
   async listWordIdsForWord(wordId: string): Promise<string[]> {
