@@ -18,6 +18,24 @@ export type Word = {
   stats: WordStats;
 };
 
+export type List = {
+  id: string;
+  userId: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ListWordAssignment = {
+  listId: string;
+  wordId: string;
+};
+
+export type UpdateWordListsInput = {
+  wordId: string;
+  listIds: string[];
+};
+
 export type QuizMode = "recent24h" | "recent7d" | "random" | "weak";
 
 export type QuizQuestion = {
