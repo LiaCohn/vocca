@@ -204,3 +204,29 @@ export async function listWordsInList(ownerId: string, listId: string): Promise<
 
   return result.rows.map(mapWord);
 }
+
+export async function listListIdsForWord(ownerId: string, wordId: string): Promise<string[] | null> {
+  const pool = getPool();
+  const ownership = await pool.query(
+    `select 1
+     from words
+     where id = $2 and user_id = $1
+     limit 1`,
+    [ownerId, wordId],
+  );
+
+  if (!ownership.rows[0]) {
+    return null;
+  }
+
+  const result = await pool.query<{ list_id: string }>(
+    `select lw.list_id
+     from list_words lw
+     inner join lists l on l.id = lw.list_id
+     where lw.word_id = $2 and l.user_id = $1
+     order by lw.created_at desc`,
+    [ownerId, wordId],
+  );
+
+  return result.rows.map((row) => row.list_id);
+}

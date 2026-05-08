@@ -6,6 +6,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 const links = [
   { href: "/", label: "Home" },
   { href: "/words/new", label: "Add Word" },
+  { href: "/lists", label: "Lists" },
   { href: "/quiz", label: "Quiz" },
 ];
 
