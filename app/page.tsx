@@ -2,12 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { getListRepository, type ListWithWordCount } from "@/data/list-repository";
 import type { Word } from "@/domain/types";
 import { getWordRepository } from "@/data/word-repository";
 import { WordComponent } from "@/components/Word";
 
 export default function Home() {
   const [words, setWords] = useState<Word[]>([]);
+  const [lists, setLists] = useState<ListWithWordCount[]>([]);
   const [search, setSearch] = useState("");
   const [nowMs, setNowMs] = useState(() => Date.now());
 
@@ -15,6 +17,13 @@ export default function Home() {
     getWordRepository()
       .list()
       .then(setWords);
+  }, []);
+
+  useEffect(() => {
+    getListRepository()
+      .list()
+      .then(setLists)
+      .catch(() => setLists([]));
   }, []);
 
   useEffect(() => {
@@ -59,7 +68,9 @@ export default function Home() {
           <p className="text-sm text-zinc-600">No words yet.</p>
         ) : (
           <ul className="space-y-2">
-            {filteredWords.map((word) => WordComponent({word, onDelete: handleDelete, nowMs}))}
+            {filteredWords.map((word) => (
+              <WordComponent key={word.id} word={word} onDelete={handleDelete} nowMs={nowMs} availableLists={lists} />
+            ))}
           </ul>
         )}
       </section>

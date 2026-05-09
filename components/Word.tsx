@@ -1,8 +1,25 @@
-import Link from "next/link";
+"use client";
 
+import Link from "next/link";
+import { useState } from "react";
+
+import { getListRepository, type ListWithWordCount } from "@/data/list-repository";
 import type { Word } from "@/domain/types";
 
-export const WordComponent = ({ word ,onDelete, nowMs}: { word: Word, onDelete: (id: string) => void, nowMs: number }) => {
+type WordProps = {
+  word: Word;
+  onDelete: (id: string) => void;
+  nowMs: number;
+  availableLists: ListWithWordCount[];
+};
+
+export const WordComponent = ({ word, onDelete, nowMs, availableLists }: WordProps) => {
+    const [showLists, setShowLists] = useState(false);
+    const [selectedListIds, setSelectedListIds] = useState<string[]>([]);
+    const [hasLoadedAssignments, setHasLoadedAssignments] = useState(false);
+    const [listsPending, setListsPending] = useState(false);
+    const [listsError, setListsError] = useState<string | null>(null);
+
     const handleDelete = (id: string) => {
         onDelete(id);
     }
@@ -23,9 +40,44 @@ export const WordComponent = ({ word ,onDelete, nowMs}: { word: Word, onDelete: 
         return `${days} Days Ago`;
     }
 
+    async function toggleListsPanel() {
+      if (!showLists && !hasLoadedAssignments) {
+        setListsPending(true);
+        try {
+          const ids = await getListRepository().listWordIdsForWord(word.id);
+          setSelectedListIds(ids);
+          setHasLoadedAssignments(true);
+          setListsError(null);
+        } catch {
+          setListsError("Could not load assignments.");
+        } finally {
+          setListsPending(false);
+        }
+      }
+
+      setShowLists((current) => !current);
+    }
+
+    async function handleListToggle(listId: string, checked: boolean) {
+      setListsPending(true);
+      try {
+        if (checked) {
+          await getListRepository().assignWord(listId, word.id);
+          setSelectedListIds((current) => (current.includes(listId) ? current : [...current, listId]));
+        } else {
+          await getListRepository().unassignWord(listId, word.id);
+          setSelectedListIds((current) => current.filter((id) => id !== listId));
+        }
+        setListsError(null);
+      } catch {
+        setListsError("Could not update assignments.");
+      } finally {
+        setListsPending(false);
+      }
+    }
 
   return (
-        <li key={word.id} className="rounded-md border border-zinc-200 px-3 py-2">
+        <li className="rounded-md border border-zinc-200 px-3 py-2">
             <div className="flex items-start justify-between gap-2">
               <p className="min-w-0 flex-1 text-base font-semibold">{word.text}</p>
               <div className="flex shrink-0 items-center gap-2">
@@ -57,6 +109,13 @@ export const WordComponent = ({ word ,onDelete, nowMs}: { word: Word, onDelete: 
                 </Link>
                 <button
                   type="button"
+                  onClick={toggleListsPanel}
+                  className="rounded-md border border-zinc-300 px-2 py-1 text-xs hover:bg-zinc-50"
+                >
+                  Lists
+                </button>
+                <button
+                  type="button"
                   aria-label={`Delete ${word.text}`}
                   onClick={() => handleDelete(word.id)}
                   className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-sm font-medium leading-none text-white transition hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 active:scale-95"
@@ -65,6 +124,29 @@ export const WordComponent = ({ word ,onDelete, nowMs}: { word: Word, onDelete: 
                 </button>
               </div>
             </div>
+            {showLists ? (
+              <section className="mt-2 rounded-md border border-zinc-200 bg-zinc-50 p-2">
+                {availableLists.length === 0 ? (
+                  <p className="text-xs text-zinc-600">No lists yet.</p>
+                ) : (
+                  <div className="space-y-1">
+                    {availableLists.map((list) => (
+                      <label key={list.id} className="flex items-center gap-2 text-xs text-zinc-800">
+                        <input
+                          type="checkbox"
+                          checked={selectedListIds.includes(list.id)}
+                          disabled={listsPending}
+                          onChange={(event) => handleListToggle(list.id, event.target.checked)}
+                        />
+                        <span>{list.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+                {listsPending ? <p className="mt-2 text-xs text-zinc-500">Saving...</p> : null}
+                {listsError ? <p className="mt-2 text-xs text-red-600">{listsError}</p> : null}
+              </section>
+            ) : null}
             <p className="text-sm text-zinc-700">{word.meaning ?? "No meaning yet"}</p>
             {word.example?.trim() ? (
               <details className="group mt-2 mb-2 rounded-md border border-zinc-200 bg-zinc-50 px-2 py-1 text-sm text-zinc-700">
