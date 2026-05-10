@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
+import { getListRepository } from "@/data/list-repository";
 import { getWordRepository } from "@/data/word-repository";
 import { buildQuestion, buildQuestionQueue, getWordsForMode } from "@/domain/quiz";
 import type { QuizMode, QuizResult, Word } from "@/domain/types";
@@ -12,6 +13,7 @@ const RETRY_STORAGE_KEY = "vocca.retry-ids.v1";
 
 type Summary = {
   mode: QuizMode;
+  listId?: string;
   total: number;
   correct: number;
   results: QuizResult[];
@@ -28,6 +30,7 @@ export default function QuizRunClient() {
   const params = useSearchParams();
   const mode = (params.get("mode") as QuizMode) ?? "recent7d";
   const count = Number(params.get("count") ?? "10");
+  const listId = params.get("listId") ?? "";
 
   const [queue, setQueue] = useState<Word[]>([]);
   const [results, setResults] = useState<QuizResult[]>([]);
@@ -38,15 +41,15 @@ export default function QuizRunClient() {
 
   useEffect(() => {
     async function loadQuiz() {
-      const allWords = await getWordRepository().list();
-      let modeWords = getWordsForMode(allWords, mode);
+      const scopedWords = listId ? await getListRepository().listWords(listId) : await getWordRepository().list();
+      let modeWords = getWordsForMode(scopedWords, mode);
       const retryRaw = window.sessionStorage.getItem(RETRY_STORAGE_KEY);
 
       if (retryRaw) {
         try {
           const retryIds = JSON.parse(retryRaw) as string[];
           const retrySet = new Set(retryIds);
-          const retryWords = allWords.filter((word) => retrySet.has(word.id));
+          const retryWords = scopedWords.filter((word) => retrySet.has(word.id));
           if (retryWords.length > 0) {
             modeWords = retryWords;
           }
@@ -57,7 +60,7 @@ export default function QuizRunClient() {
 
       const withMeaning = modeWords.filter((word) => Boolean(word.meaning?.trim()));
       const initialQueue = buildQuestionQueue(withMeaning, count);
-      setPool(allWords);
+      setPool(scopedWords);
       setQueue(initialQueue);
       setTotalQuestions(initialQueue.length);
       window.sessionStorage.removeItem(RETRY_STORAGE_KEY);
@@ -65,7 +68,7 @@ export default function QuizRunClient() {
     }
 
     void loadQuiz();
-  }, [count, mode]);
+  }, [count, listId, mode]);
 
   const currentWord = queue[0];
 
@@ -109,6 +112,7 @@ export default function QuizRunClient() {
   function finishQuiz() {
     const summary: Summary = {
       mode,
+      listId: listId || undefined,
       total: results.length,
       correct: results.filter((result) => result.isCorrect).length,
       results,
@@ -123,8 +127,6 @@ export default function QuizRunClient() {
   }
 
   if (queue.length === 0 || !question) {
-    console.log("queue ", queue);
-    console.log("question", question);
     if (results.length > 0) {
       return (
         <section className="space-y-4">

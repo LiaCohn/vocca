@@ -17,8 +17,6 @@ export function getWordsForMode(words: Word[], mode: QuizMode, now = new Date())
 }
 
 export function buildQuestion(word: Word, pool: Word[]): QuizQuestion | null {
-  console.log("word", word);
-  console.log("pool", pool);
   if (!word.meaning || word.meaning.trim().length === 0) {
     return null;
   }
@@ -27,9 +25,7 @@ export function buildQuestion(word: Word, pool: Word[]): QuizQuestion | null {
     .filter((candidate) => candidate.id !== word.id)
     .map((candidate) => candidate.meaning?.trim())
     .filter((meaning): meaning is string => Boolean(meaning && meaning.length > 0 && meaning !== word.meaning));
-  console.log("distractorCandidates", distractorCandidates);
   const uniqueDistractors = Array.from(new Set(distractorCandidates));
-  console.log("uniqueDistractors", uniqueDistractors);
   if (uniqueDistractors.length < 3) {
     return null;
   }
