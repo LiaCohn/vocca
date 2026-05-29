@@ -57,23 +57,23 @@ export default function EditWordPage() {
   }
 
   if (!word) {
-    return <p className="text-sm text-zinc-600">Word not found.</p>;
+    return <p className="text-sm text-vocca-ink-muted">Word not found.</p>;
   }
 
   return (
     <section className="space-y-4">
-      <h1 className="text-2xl font-semibold">Edit word</h1>
-      <section className="space-y-2 rounded-lg border border-zinc-200 bg-white p-4">
-        <h2 className="text-sm font-medium">Lists</h2>
+      <h1 className="vocca-page-title">Edit word</h1>
+      <section className="vocca-card space-y-2 p-4">
+        <h2 className="text-sm font-bold text-vocca-ink">Lists</h2>
         {listsError ? <p className="text-sm text-red-600">{listsError}</p> : null}
         {lists.length === 0 ? (
-          <p className="text-sm text-zinc-600">No lists yet. Create one in the Lists page.</p>
+          <p className="text-sm text-vocca-ink-muted">No lists yet. Create one in the Lists page.</p>
         ) : (
           <div className="space-y-2">
             {lists.map((list) => {
               const checked = selectedListIds.includes(list.id);
               return (
-                <label key={list.id} className="flex items-center gap-2 text-sm text-zinc-800">
+                <label key={list.id} className="flex items-center gap-2 text-sm text-vocca-ink">
                   <input
                     type="checkbox"
                     checked={checked}

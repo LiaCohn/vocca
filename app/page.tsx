@@ -2,10 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { getListRepository, type ListWithWordCount } from "@/data/list-repository";
-import type { Word } from "@/domain/types";
-import { getWordRepository } from "@/data/word-repository";
 import { WordComponent } from "@/components/Word";
+import { getListRepository, type ListWithWordCount } from "@/data/list-repository";
+import { getWordRepository } from "@/data/word-repository";
+import type { Word } from "@/domain/types";
 
 export default function Home() {
   const [words, setWords] = useState<Word[]>([]);
@@ -49,32 +49,37 @@ export default function Home() {
     getWordRepository().remove(id).then(() => {
       setWords(words.filter((word) => word.id !== id));
     });
-  }
+  };
 
   return (
     <section className="space-y-4">
-      <h1 className="text-2xl font-semibold">My Words</h1>
+      <h1 className="vocca-page-title">My Words</h1>
 
+      <input
+        value={search}
+        onChange={(event) => setSearch(event.target.value)}
+        placeholder="Search words..."
+        className="vocca-input"
+      />
 
-      <section className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-4">
-        <input
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search Words..."
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
-        />
-
-        {filteredWords.length === 0 ? (
-          <p className="text-sm text-zinc-600">No words yet.</p>
-        ) : (
-          <ul className="space-y-2">
+      {filteredWords.length === 0 ? (
+        <div className="vocca-card p-6 text-center">
+          <p className="font-display text-lg text-vocca-ink-muted">No words yet</p>
+          <p className="mt-1 text-sm text-vocca-ink-muted">Tap Add to grow your collection!</p>
+        </div>
+      ) : (
+        <ul className="space-y-3">
             {filteredWords.map((word) => (
-              <WordComponent key={word.id} word={word} onDelete={handleDelete} nowMs={nowMs} availableLists={lists} />
-            ))}
-          </ul>
-        )}
-      </section>
+              <WordComponent
+                key={word.id}
+                word={word}
+                onDelete={handleDelete}
+                nowMs={nowMs}
+                availableLists={lists}
+              />
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
-

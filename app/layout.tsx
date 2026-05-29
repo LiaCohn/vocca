@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fredoka, Nunito } from "next/font/google";
 
 import { AuthSessionProvider } from "@/components/auth-session-provider";
 import { Nav } from "@/components/nav";
 
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const nunito = Nunito({
+  variable: "--font-nunito",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const fredoka = Fredoka({
+  variable: "--font-fredoka",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -27,11 +29,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full bg-zinc-50 font-sans text-zinc-950">
+    <html lang="en" className={`${nunito.variable} ${fredoka.variable} h-full antialiased`}>
+      <body className="min-h-full font-sans text-vocca-ink">
         <AuthSessionProvider>
           <Nav />
-          <main className="mx-auto w-full max-w-4xl px-4 py-6">{children}</main>
+          <main className="mx-auto w-full max-w-lg px-4 py-5 pb-10 sm:max-w-xl sm:py-6">{children}</main>
         </AuthSessionProvider>
       </body>
     </html>

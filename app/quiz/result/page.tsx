@@ -49,9 +49,9 @@ export default function QuizResultPage() {
   if (!summary) {
     return (
       <section className="space-y-3">
-        <h1 className="text-2xl font-semibold">No recent quiz</h1>
-        <p className="text-sm text-zinc-600">Start a new quiz first.</p>
-        <Link className="inline-block rounded-md border border-zinc-300 px-4 py-2 text-sm" href="/quiz">
+        <h1 className="vocca-page-title">No recent quiz</h1>
+        <p className="text-sm text-vocca-ink-muted">Start a new quiz first.</p>
+        <Link className="vocca-btn-secondary inline-block" href="/quiz">
           Go to quiz
         </Link>
       </section>
@@ -59,34 +59,45 @@ export default function QuizResultPage() {
   }
 
   const misses = summary.results.filter((result) => !result.isCorrect);
+  const pct = summary.total > 0 ? Math.round((summary.correct / summary.total) * 100) : 0;
 
   return (
     <section className="space-y-4">
-      <h1 className="text-2xl font-semibold">Result Screen</h1>
-      <div className="rounded-lg border border-zinc-200 bg-white p-8">
-        <p className="text-5xl font-semibold">
-          Score: {summary.correct} / {summary.total}
-        </p>
+      <h1 className="vocca-page-title">Your score</h1>
+      <div className="vocca-card p-5 sm:p-6">
+        <div className="text-center">
+          <p className="font-display text-6xl font-semibold text-vocca-primary sm:text-7xl">{pct}%</p>
+          <p className="mt-1 text-sm font-bold text-vocca-ink-muted">
+            {summary.correct} / {summary.total} correct
+          </p>
+        </div>
 
-        <h2 className="mt-8 text-5xl font-semibold">Mistakes:</h2>
+        <h2 className="mt-8 font-display text-xl font-semibold text-vocca-ink">Mistakes</h2>
         {misses.length === 0 ? (
-          <p className="mt-2 text-sm text-zinc-600">Perfect run.</p>
+          <p className="mt-2 text-sm font-medium text-vocca-mint">Perfect run — amazing!</p>
         ) : (
-          <ul className="mt-4 space-y-2 text-4xl">
+          <ul className="mt-3 space-y-2">
             {misses.map((miss, index) => (
-              <li key={`${miss.wordId}-${index}`} className="rounded-md border border-zinc-200 px-3 py-2">
-                - {wordNames[miss.wordId] ?? "word"} -&gt; {miss.correctAnswer}
+              <li
+                key={`${miss.wordId}-${index}`}
+                className="rounded-xl border-2 border-vocca-coral/30 bg-rose-50/50 px-3 py-2.5"
+              >
+                <span className="font-display font-semibold text-vocca-ink">
+                  {wordNames[miss.wordId] ?? "word"}
+                </span>
+                <span className="text-vocca-ink-muted"> → </span>
+                <span className="text-sm font-medium text-vocca-ink">{miss.correctAnswer}</span>
               </li>
             ))}
           </ul>
         )}
 
-        <div className="mt-8 flex flex-wrap gap-3">
-        <RetryMistakesButton misses={misses} />
-        <Link className="rounded-md border border-zinc-300 px-4 py-2 text-sm" href="/">
-          Back to Home
-        </Link>
-      </div>
+        <div className="mt-8 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <RetryMistakesButton misses={misses} />
+          <Link className="vocca-btn-secondary text-center" href="/">
+            Back to home
+          </Link>
+        </div>
       </div>
     </section>
   );
@@ -108,7 +119,7 @@ function RetryMistakesButton({ misses }: { misses: QuizResult[] }) {
         window.sessionStorage.setItem("vocca.retry-ids.v1", JSON.stringify(retryWords.map((word) => word.id)));
         window.location.href = "/quiz/run?mode=random&count=" + retryWords.length;
       }}
-      className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white"
+      className="vocca-btn-primary w-full sm:w-auto"
     >
       Retry mistakes
     </button>

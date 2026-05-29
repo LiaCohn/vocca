@@ -91,7 +91,7 @@ function ListItem({
   }
 
   return (
-    <li className="rounded-md border border-zinc-200 bg-white overflow-hidden">
+    <li className="vocca-card overflow-hidden border-l-4 border-l-vocca-sky">
       <div className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
         {!isEditing ? (
           <>
@@ -101,7 +101,7 @@ function ListItem({
                 onClick={toggleExpanded}
                 aria-expanded={expanded}
                 aria-label={expanded ? `Collapse words in ${item.name}` : `Show words in ${item.name}`}
-                className="mt-0.5 inline-flex shrink-0 items-center justify-center rounded-md border border-zinc-200 p-1 text-zinc-600 hover:bg-zinc-50"
+                className="mt-0.5 inline-flex shrink-0 items-center justify-center rounded-xl border-2 border-vocca-border p-1 text-vocca-primary hover:bg-vocca-bg"
               >
                 <span className="sr-only">{expanded ? "Collapse" : "Expand"}</span>
                 <svg
@@ -121,8 +121,8 @@ function ListItem({
                 onClick={toggleExpanded}
                 className="min-w-0 flex-1 text-left hover:underline"
               >
-                <p className="truncate text-sm font-medium text-zinc-900">{item.name}</p>
-                <p className="text-xs text-zinc-600">
+                <p className="truncate font-display text-base font-semibold text-vocca-ink">{item.name}</p>
+                <p className="text-xs font-medium text-vocca-ink-muted">
                   {item.wordCount} {item.wordCount === 1 ? "word" : "words"}
                 </p>
               </button>
@@ -134,7 +134,7 @@ function ListItem({
                   event.stopPropagation();
                   setIsEditing(true);
                 }}
-                className="rounded-md border border-zinc-300 px-2 py-1 text-sm hover:bg-zinc-50"
+                className="vocca-btn-secondary px-2 py-1 text-xs"
               >
                 Rename
               </button>
@@ -144,7 +144,7 @@ function ListItem({
                   event.stopPropagation();
                   void onDelete(item.id);
                 }}
-                className="rounded-md border border-red-200 px-2 py-1 text-sm text-red-700 hover:bg-red-50"
+                className="rounded-xl border-2 border-red-200 px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
               >
                 Delete
               </button>
@@ -155,13 +155,13 @@ function ListItem({
             <input
               value={nameDraft}
               onChange={(event) => setNameDraft(event.target.value)}
-              className="min-w-[12rem] flex-1 rounded-md border border-zinc-300 px-2 py-1 text-sm"
+              className="vocca-input min-w-[12rem] flex-1 py-1.5 text-sm"
               autoFocus
             />
             <button
               type="submit"
               disabled={pending || nameDraft.trim().length === 0}
-              className="rounded-md border border-zinc-300 px-2 py-1 text-sm hover:bg-zinc-50 disabled:opacity-50"
+              className="vocca-btn-primary px-2 py-1 text-xs disabled:opacity-50"
             >
               Save
             </button>
@@ -172,7 +172,7 @@ function ListItem({
                 setIsEditing(false);
                 setNameDraft(item.name);
               }}
-              className="rounded-md border border-zinc-300 px-2 py-1 text-sm hover:bg-zinc-50 disabled:opacity-50"
+              className="vocca-btn-secondary px-2 py-1 text-xs disabled:opacity-50"
             >
               Cancel
             </button>
@@ -181,13 +181,13 @@ function ListItem({
       </div>
 
       {expanded ? (
-        <div className="border-t border-zinc-100 bg-zinc-50 px-3 py-3">
+        <div className="border-t-2 border-vocca-border bg-vocca-bg/50 px-3 py-3">
           {loadingWords ? (
-            <p className="text-sm text-zinc-600">Loading words...</p>
+            <p className="text-sm text-vocca-ink-muted">Loading words...</p>
           ) : wordsError ? (
             <p className="text-sm text-red-600">{wordsError}</p>
           ) : listWords.length === 0 ? (
-            <p className="text-sm text-zinc-600">No words in this list yet.</p>
+            <p className="text-sm text-vocca-ink-muted">No words in this list yet.</p>
           ) : (
             <ul className="space-y-2">
               {listWords.map((word) => (
@@ -281,19 +281,19 @@ export default function ListsPage() {
 
   return (
     <section className="space-y-4">
-      <h1 className="text-2xl font-semibold">Lists</h1>
+      <h1 className="vocca-page-title">Lists</h1>
 
-      <form onSubmit={handleCreate} className="flex gap-2 rounded-lg border border-zinc-200 bg-white p-3">
+      <form onSubmit={handleCreate} className="vocca-card flex flex-col gap-2 p-3 sm:flex-row">
         <input
           value={newListName}
           onChange={(event) => setNewListName(event.target.value)}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
-          placeholder="Add a new list (e.g. Business English)"
+          className="vocca-input flex-1"
+          placeholder="New list (e.g. Business English)"
         />
         <button
           type="submit"
           disabled={creating || newListName.trim().length === 0}
-          className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          className="vocca-btn-primary shrink-0 px-4 disabled:opacity-50"
         >
           {creating ? "Adding..." : "Add"}
         </button>
@@ -302,9 +302,9 @@ export default function ListsPage() {
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
       {loading ? (
-        <p className="text-sm text-zinc-600">Loading lists...</p>
+        <p className="text-sm text-vocca-ink-muted">Loading lists...</p>
       ) : error ? null : lists.length === 0 ? (
-        <p className="text-sm text-zinc-600">No lists yet.</p>
+        <p className="text-sm text-vocca-ink-muted">No lists yet — create your first one above!</p>
       ) : (
         <ul className="space-y-2">
           {lists.map((item) => (
