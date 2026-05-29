@@ -4,24 +4,24 @@ import { signIn } from "next-auth/react";
 
 export default function SignInPage() {
   return (
-    <section className="flex min-h-[70vh] items-center justify-center px-4">
-      <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">Vocca</p>
-        <h1 className="mt-2 text-3xl font-semibold text-zinc-900">Welcome back</h1>
-        <p className="mt-2 text-sm text-zinc-600">
+    <section className="flex min-h-[60vh] items-center justify-center">
+      <div className="vocca-card w-full p-8 text-center shadow-[var(--vocca-shadow)]">
+        <p className="font-display text-3xl font-semibold text-vocca-primary">Vocca</p>
+        <h1 className="mt-2 font-display text-2xl font-semibold text-vocca-ink">Welcome back</h1>
+        <p className="mt-2 text-sm text-vocca-ink-muted">
           Sign in to sync your words, quiz history, and progress to your personal account.
         </p>
 
         <button
           type="button"
           onClick={() => signIn("google", { callbackUrl: "/" })}
-          className="mt-6 flex w-full items-center justify-center gap-3 rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-50"
+          className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border-2 border-vocca-border bg-white px-4 py-3 text-sm font-bold text-vocca-ink transition hover:border-vocca-primary hover:bg-vocca-bg"
         >
           <GoogleMark />
           Continue with Google
         </button>
 
-        <p className="mt-4 text-center text-xs text-zinc-500">Only your account can access your saved words.</p>
+        <p className="mt-4 text-xs text-vocca-ink-muted">Only your account can access your saved words.</p>
       </div>
     </section>
   );

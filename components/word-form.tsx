@@ -26,34 +26,26 @@ const wordFormSchema = z.object({
 });
 
 function TagBadge({ label, onRemove }: { label: string; onRemove: () => void }) {
+  const isMust = label.toLowerCase() === "must";
   return (
-    <span className="inline-flex items-center gap-1 rounded bg-zinc-100 py-0.5 ps-1.5 pe-0.5 text-xs font-medium text-zinc-900 ring-1 ring-zinc-200 ring-inset">
+    <span
+      className={`inline-flex items-center gap-1 rounded-full border py-0.5 ps-2 pe-1 text-xs font-bold ${
+        isMust
+          ? "border-amber-200 bg-vocca-must-bg text-vocca-must-text"
+          : "border-vocca-border bg-vocca-bg text-vocca-primary"
+      }`}
+    >
       <span>{label}</span>
       <button
         type="button"
-        className="inline-flex items-center rounded-sm bg-transparent p-0.5 text-sm hover:bg-zinc-200"
+        className="inline-flex items-center rounded-full bg-transparent p-0.5 hover:bg-black/5"
         onMouseDown={(e) => e.preventDefault()}
         onClick={onRemove}
         aria-label={`Remove tag ${label}`}
       >
-        <svg
-          className="h-3 w-3"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M6 18 17.94 6M18 18 6.06 6"
-          />
+        <svg className="h-3 w-3" aria-hidden xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18 17.94 6M18 18 6.06 6" />
         </svg>
-        <span className="sr-only">Remove badge</span>
       </button>
     </span>
   );
@@ -115,8 +107,7 @@ export function WordForm({ initialValues, submitLabel, onSubmit }: WordFormProps
 
     clearTagDebounce();
     const draft = tagDraft.trim();
-    const tagsForSubmit =
-      draft && !tags.includes(draft) ? [...tags, draft] : tags;
+    const tagsForSubmit = draft && !tags.includes(draft) ? [...tags, draft] : tags;
 
     const parsed = wordFormSchema.safeParse({ ...values, tags: tagsForSubmit });
     if (!parsed.success) {
@@ -137,9 +128,9 @@ export function WordForm({ initialValues, submitLabel, onSubmit }: WordFormProps
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-zinc-200 bg-white p-4">
+    <form onSubmit={handleSubmit} className="vocca-card space-y-4 p-4 sm:p-5">
       <div>
-        <label htmlFor="text" className="mb-1 block text-sm font-medium">
+        <label htmlFor="text" className="mb-1.5 block text-sm font-bold text-vocca-ink">
           Word *
         </label>
         <input
@@ -147,20 +138,16 @@ export function WordForm({ initialValues, submitLabel, onSubmit }: WordFormProps
           autoFocus
           value={values.text}
           onChange={(event) => setValues((current) => ({ ...current, text: event.target.value }))}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2"
+          className="vocca-input font-display text-lg"
           placeholder="e.g. meticulous"
         />
       </div>
 
       <div>
-        <span className="mb-1 block text-sm font-medium">Tags</span>
-        <div className="flex min-h-[42px] w-full flex-wrap items-center gap-2 rounded-md border border-zinc-300 bg-white px-2 py-2 focus-within:ring-2 focus-within:ring-zinc-400 focus-within:ring-offset-1">
+        <span className="mb-1.5 block text-sm font-bold text-vocca-ink">Tags</span>
+        <div className="flex min-h-[44px] w-full flex-wrap items-center gap-2 rounded-xl border-2 border-vocca-border bg-white px-2 py-2 focus-within:border-vocca-primary focus-within:ring-2 focus-within:ring-vocca-primary/20">
           {tags.map((tag) => (
-            <TagBadge
-              key={tag}
-              label={tag}
-              onRemove={() => setTags((prev) => prev.filter((t) => t !== tag))}
-            />
+            <TagBadge key={tag} label={tag} onRemove={() => setTags((prev) => prev.filter((t) => t !== tag))} />
           ))}
           <input
             id="tags"
@@ -185,47 +172,44 @@ export function WordForm({ initialValues, submitLabel, onSubmit }: WordFormProps
               clearTagDebounce();
               commitTagText(t);
             }}
-            className="min-w-[8rem] flex-1 border-0 bg-transparent px-1 py-0.5 text-sm outline-none placeholder:text-zinc-400"
-            placeholder="Type a tag, Enter or pause to add"
+            className="min-w-[8rem] flex-1 border-0 bg-transparent px-1 py-0.5 text-sm outline-none placeholder:text-vocca-ink-muted/60"
+            placeholder="Type a tag — try must"
             autoComplete="off"
           />
         </div>
       </div>
 
       <div>
-        <label htmlFor="meaning" className="mb-1 block text-sm font-medium">
+        <label htmlFor="meaning" className="mb-1.5 block text-sm font-bold text-vocca-ink">
           Meaning *
         </label>
         <textarea
           id="meaning"
           value={values.meaning}
           onChange={(event) => setValues((current) => ({ ...current, meaning: event.target.value }))}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2"
+          className="vocca-input"
           rows={3}
-          placeholder="Optional, but recommended for quizzes"
+          placeholder="What does it mean?"
         />
       </div>
 
       <div>
-        <label htmlFor="example" className="mb-1 block text-sm font-medium">
+        <label htmlFor="example" className="mb-1.5 block text-sm font-bold text-vocca-ink">
           Example sentence
         </label>
         <textarea
           id="example"
           value={values.example}
           onChange={(event) => setValues((current) => ({ ...current, example: event.target.value }))}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2"
+          className="vocca-input"
           rows={3}
+          placeholder="Use it in a sentence..."
         />
       </div>
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm font-medium text-red-600">{error}</p> : null}
 
-      <button
-        type="submit"
-        disabled={submitting || !canSubmit}
-        className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-      >
+      <button type="submit" disabled={submitting || !canSubmit} className="vocca-btn-primary w-full sm:w-auto">
         {submitting ? "Saving..." : submitLabel}
       </button>
     </form>

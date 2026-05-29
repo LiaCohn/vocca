@@ -1,26 +1,77 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --vocca-bg: #f3f0ff;
+  --vocca-bg-accent: #ffe8f0;
+  --vocca-surface: #ffffff;
+  --vocca-ink: #2a1f45;
+  --vocca-ink-muted: #6b5f8a;
+  --vocca-border: #e4dcf5;
+  --vocca-primary: #7c3aed;
+  --vocca-primary-hover: #6d28d9;
+  --vocca-coral: #ff6b8a;
+  --vocca-mint: #2dd4a8;
+  --vocca-sun: #ffc857;
+  --vocca-sky: #5eb3ff;
+  --vocca-must-bg: #fff0c2;
+  --vocca-must-text: #9a5b00;
+  --vocca-shadow: 0 8px 24px -8px rgba(124, 58, 237, 0.18);
+  --vocca-shadow-sm: 0 4px 12px -4px rgba(42, 31, 69, 0.12);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-vocca-bg: var(--vocca-bg);
+  --color-vocca-bg-accent: var(--vocca-bg-accent);
+  --color-vocca-surface: var(--vocca-surface);
+  --color-vocca-ink: var(--vocca-ink);
+  --color-vocca-ink-muted: var(--vocca-ink-muted);
+  --color-vocca-border: var(--vocca-border);
+  --color-vocca-primary: var(--vocca-primary);
+  --color-vocca-primary-hover: var(--vocca-primary-hover);
+  --color-vocca-coral: var(--vocca-coral);
+  --color-vocca-mint: var(--vocca-mint);
+  --color-vocca-sun: var(--vocca-sun);
+  --color-vocca-sky: var(--vocca-sky);
+  --color-vocca-must-bg: var(--vocca-must-bg);
+  --color-vocca-must-text: var(--vocca-must-text);
+  --font-sans: var(--font-nunito), system-ui, sans-serif;
+  --font-family-display: var(--font-fredoka), system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.font-vocca-display {
+  font-family: var(--font-fredoka), system-ui, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(165deg, var(--vocca-bg) 0%, var(--vocca-bg-accent) 55%, #e8f4ff 100%);
+  background-attachment: fixed;
+  color: var(--vocca-ink);
+  font-family: var(--font-nunito), system-ui, sans-serif;
+}
+
+@layer components {
+  .vocca-page-title {
+    font-family: var(--font-fredoka), system-ui, sans-serif;
+    @apply text-3xl font-semibold tracking-tight text-vocca-ink sm:text-4xl;
+  }
+
+  .vocca-card {
+    @apply rounded-2xl border-2 border-vocca-border bg-vocca-surface shadow-[var(--vocca-shadow-sm)];
+  }
+
+  .vocca-input {
+    @apply w-full rounded-xl border-2 border-vocca-border bg-white px-3 py-2.5 text-sm text-vocca-ink outline-none transition placeholder:text-vocca-ink-muted/60 focus:border-vocca-primary focus:ring-2 focus:ring-vocca-primary/20;
+  }
+
+  .vocca-btn-primary {
+    @apply rounded-xl bg-vocca-primary px-4 py-2.5 text-sm font-bold text-white shadow-[var(--vocca-shadow-sm)] transition hover:bg-vocca-primary-hover active:scale-[0.98] disabled:opacity-50;
+  }
+
+  .vocca-btn-secondary {
+    @apply rounded-xl border-2 border-vocca-border bg-white px-4 py-2 text-sm font-semibold text-vocca-ink transition hover:border-vocca-primary/40 hover:bg-vocca-bg active:scale-[0.98];
+  }
+
+  .vocca-word-card {
+    @apply rounded-2xl border-2 border-vocca-border border-l-4 border-l-vocca-primary bg-white p-4 shadow-[var(--vocca-shadow-sm)] transition hover:border-vocca-primary/30;
+  }
 }

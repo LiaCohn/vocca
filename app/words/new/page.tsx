@@ -10,9 +10,9 @@ export default function NewWordPage() {
 
   return (
     <section className="space-y-4">
-      <h1 className="text-2xl font-semibold">Add word</h1>
+      <h1 className="vocca-page-title">Add word</h1>
       <WordForm
-        submitLabel="Save"
+        submitLabel="Save word"
         onSubmit={async (values) => {
           await getWordRepository().create({
             text: values.text,
