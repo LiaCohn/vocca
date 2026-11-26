@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { WandSparkles } from "lucide-react";
 import { z } from "zod";
 
 const TAG_DEBOUNCE_MS = 500;
@@ -67,6 +68,7 @@ export function WordForm({ initialValues, submitLabel, onSubmit }: WordFormProps
   const [tagDraft, setTagDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [generatingMeaning, setGeneratingMeaning] = useState(false);
   const tagDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const canSubmit = values.text.trim().length > 0 && values.meaning.trim().length > 0;
 
@@ -127,6 +129,50 @@ export function WordForm({ initialValues, submitLabel, onSubmit }: WordFormProps
     }
   }
 
+  async function handleGenerateMeaning() {
+    const text = values.text.trim();
+    if (!text) return;
+
+    setError(null);
+    setGeneratingMeaning(true);
+
+    try {
+      const response = await fetch("/api/words/meaning", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+
+      let payload: unknown;
+      try {
+        payload = await response.json();
+      } catch {
+        throw new Error("Could not generate a meaning. Please try again.");
+      }
+
+      if (!payload || typeof payload !== "object") {
+        throw new Error("Could not generate a meaning. Please try again.");
+      }
+
+      const result = payload as { error?: unknown; meaning?: unknown };
+      if (!response.ok) {
+        throw new Error(
+          typeof result.error === "string" ? result.error : "Could not generate a meaning. Please try again.",
+        );
+      }
+      const meaning = result.meaning;
+      if (typeof meaning !== "string" || !meaning.trim()) {
+        throw new Error("Could not generate a meaning. Please try again.");
+      }
+
+      setValues((current) => ({ ...current, meaning: meaning.trim() }));
+    } catch (generateError) {
+      setError(generateError instanceof Error ? generateError.message : "Could not generate a meaning. Please try again.");
+    } finally {
+      setGeneratingMeaning(false);
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit} className="vocca-card space-y-4 p-4 sm:p-5">
       <div>
@@ -137,7 +183,11 @@ export function WordForm({ initialValues, submitLabel, onSubmit }: WordFormProps
           id="text"
           autoFocus
           value={values.text}
-          onChange={(event) => setValues((current) => ({ ...current, text: event.target.value }))}
+          disabled={generatingMeaning}
+          onChange={(event) => {
+            setValues((current) => ({ ...current, text: event.target.value }));
+            setError(null);
+          }}
           className="vocca-input font-display text-lg"
           placeholder="e.g. meticulous"
         />
@@ -180,9 +230,28 @@ export function WordForm({ initialValues, submitLabel, onSubmit }: WordFormProps
       </div>
 
       <div>
-        <label htmlFor="meaning" className="mb-1.5 block text-sm font-bold text-vocca-ink">
-          Meaning *
-        </label>
+        <div className="mb-1.5 flex items-center justify-between gap-2">
+          <label htmlFor="meaning" className="block text-sm font-bold text-vocca-ink">
+            Meaning *
+          </label>
+          <span className="group relative inline-flex">
+            <button
+              type="button"
+              onClick={handleGenerateMeaning}
+              disabled={generatingMeaning || !values.text.trim()}
+              aria-label={generatingMeaning ? "Getting meaning" : "Get meaning"}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-vocca-bg focus:outline-none focus:ring-2 focus:ring-vocca-primary/30 disabled:cursor-wait disabled:opacity-60"
+            >
+              <WandSparkles size={20} color="#a855f7" strokeWidth={1.5} aria-hidden="true" />
+            </button>
+            <span
+              role="tooltip"
+              className="pointer-events-none absolute bottom-full right-0 mb-2 whitespace-nowrap rounded-md bg-vocca-ink px-2 py-1 text-xs font-medium text-white opacity-0 shadow transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+            >
+              {generatingMeaning ? "Getting meaning..." : "Get meaning"}
+            </span>
+          </span>
+        </div>
         <textarea
           id="meaning"
           value={values.meaning}
@@ -209,7 +278,7 @@ export function WordForm({ initialValues, submitLabel, onSubmit }: WordFormProps
 
       {error ? <p className="text-sm font-medium text-red-600">{error}</p> : null}
 
-      <button type="submit" disabled={submitting || !canSubmit} className="vocca-btn-primary w-full sm:w-auto">
+      <button type="submit" disabled={submitting || generatingMeaning || !canSubmit} className="vocca-btn-primary w-full sm:w-auto">
         {submitting ? "Saving..." : submitLabel}
       </button>
     </form>
